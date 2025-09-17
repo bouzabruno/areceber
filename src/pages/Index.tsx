@@ -22,9 +22,17 @@ const Index = () => {
   } = useFinancialData();
 
   const handleFileUpload = async (file: File) => {
-    console.log('📁 handleFileUpload chamado com arquivo:', file.name);
-    await processExcelFile(file);
-    console.log('📊 processExcelFile concluído');
+    console.log('📁 handleFileUpload chamado com arquivo:', file.name, 'tipo:', file.type);
+    console.log('📁 Estado antes do processamento - rawData.length:', rawData.length, 'hasData:', hasData);
+    
+    try {
+      await processExcelFile(file);
+      console.log('📊 processExcelFile concluído sem erro');
+    } catch (error) {
+      console.error('❌ Erro em handleFileUpload:', error);
+    }
+    
+    console.log('📁 Estado após processamento - rawData.length:', rawData.length, 'hasData:', hasData);
   };
 
   // Usa rawData.length para verificar se há dados carregados

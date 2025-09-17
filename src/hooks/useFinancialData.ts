@@ -11,30 +11,73 @@ export const useFinancialData = () => {
   const processExcelFile = useCallback(async (file: File) => {
     console.log('🔄 Iniciando processamento do arquivo:', file.name, file.type, file.size);
     setLoading(true);
+    
     try {
+      console.log('📄 Criando buffer do arquivo...');
       const buffer = await file.arrayBuffer();
       console.log('📄 Buffer criado, tamanho:', buffer.byteLength);
       
+      if (buffer.byteLength === 0) {
+        throw new Error('Arquivo vazio ou corrompido');
+      }
+      
+      console.log('📊 Lendo workbook...');
       const workbook = XLSX.read(buffer, { type: 'array' });
       console.log('📊 Workbook criado, sheets:', workbook.SheetNames);
+      
+      if (!workbook.SheetNames.length) {
+        throw new Error('Nenhuma planilha encontrada no arquivo');
+      }
       
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       console.log('📋 Worksheet selecionada:', sheetName);
       
-      const jsonData = XLSX.utils.sheet_to_json<FinancialRecord>(worksheet);
-      console.log('🔢 Dados convertidos para JSON, registros:', jsonData.length);
-      console.log('📝 Primeira linha de dados:', jsonData[0]);
+      if (!worksheet) {
+        throw new Error('Não foi possível acessar a planilha');
+      }
+      
+      console.log('🔢 Convertendo para JSON...');
+      const jsonData = XLSX.utils.sheet_to_json<any>(worksheet, { header: 1 });
+      console.log('🔢 Dados brutos convertidos, linhas:', jsonData.length);
+      console.log('📝 Primeira linha (cabeçalhos):', jsonData[0]);
+      console.log('📝 Segunda linha (dados):', jsonData[1]);
+      
+      // Converter para objetos usando a primeira linha como cabeçalhos
+      const headers = jsonData[0] as string[];
+      const dataRows = jsonData.slice(1);
+      
+      const records = dataRows.map((row: any[]) => {
+        const record: any = {};
+        headers.forEach((header, index) => {
+          record[header] = row[index];
+        });
+        return record;
+      }).filter(record => {
+        // Filtrar linhas vazias
+        return Object.values(record).some(value => value !== null && value !== undefined && value !== '');
+      });
+      
+      console.log('🔢 Registros criados:', records.length);
+      console.log('📝 Primeiro registro completo:', records[0]);
       
       // Validar e processar os dados
-      const processedData = jsonData.map((row, index) => {
+      const processedData = records.map((row, index) => {
         try {
           return {
-            ...row,
             CodFilial: Number(row.CodFilial) || 0,
             PeriodoLetivo: Number(row.PeriodoLetivo) || 0,
+            Mes: String(row.Mes || ''),
+            CodTurma: String(row.CodTurma || ''),
+            DataVencimento: String(row.DataVencimento || ''),
+            DataBaixa: String(row.DataBaixa || ''),
             RefLancamento: Number(row.RefLancamento) || 0,
+            FormaPagamento: String(row.FormaPagamento || ''),
+            ClienteFornecedor: String(row.ClienteFornecedor || ''),
+            Historico: String(row.Historico || ''),
             RA: Number(row.RA) || 0,
+            SituacaoContrato: String(row.SituacaoContrato || ''),
+            StatusFinanceiro: String(row.StatusFinanceiro || ''),
             ValorOriginal: Number(row.ValorOriginal) || 0,
             Bolsa: Number(row.Bolsa) || 0,
             ValorJuros: Number(row.ValorJuros) || 0,
@@ -44,25 +87,31 @@ export const useFinancialData = () => {
             ValorLiquido: Number(row.ValorLiquido) || 0,
           } as FinancialRecord;
         } catch (error) {
-          console.warn(`Erro ao processar linha ${index + 1}:`, error);
+          console.warn(`Erro ao processar linha ${index + 1}:`, error, row);
           return null;
         }
       }).filter(Boolean) as FinancialRecord[];
 
       console.log('✅ Dados processados com sucesso:', processedData.length, 'registros');
+      console.log('📝 Primeiro registro processado:', processedData[0]);
+      
       setData(processedData);
+      
       toast({
         title: "Sucesso!",
         description: `${processedData.length} registros carregados com sucesso.`,
       });
+      
     } catch (error) {
-      console.error('❌ Erro ao processar arquivo:', error);
+      console.error('❌ Erro detalhado ao processar arquivo:', error);
+      console.error('❌ Stack trace:', (error as Error).stack);
       toast({
         title: "Erro ao processar arquivo",
-        description: "Verifique se o arquivo está no formato correto.",
+        description: `Erro: ${(error as Error).message}`,
         variant: "destructive",
       });
     } finally {
+      console.log('🔄 Finalizando processamento, setLoading(false)');
       setLoading(false);
     }
   }, []);

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { DashboardFilters } from '@/components/DashboardFilters';
 import { FinancialSummaryCards } from '@/components/FinancialSummaryCards';
@@ -11,6 +10,7 @@ import { BarChart3, FileSpreadsheet, TrendingUp } from 'lucide-react';
 const Index = () => {
   const {
     data,
+    rawData, // dados brutos antes dos filtros
     loading,
     filters,
     setFilters,
@@ -21,14 +21,19 @@ const Index = () => {
     uniqueValues,
   } = useFinancialData();
 
-  const [showDashboard, setShowDashboard] = useState(false);
-
   const handleFileUpload = async (file: File) => {
+    console.log('📁 handleFileUpload chamado com arquivo:', file.name);
     await processExcelFile(file);
-    setShowDashboard(true);
+    console.log('📊 processExcelFile concluído');
   };
 
-  if (!showDashboard || data.length === 0) {
+  // Usa rawData.length para verificar se há dados carregados
+  // rawData contém todos os dados antes dos filtros
+  const hasData = rawData.length > 0;
+
+  console.log('🔍 Estado atual - hasData:', hasData, 'rawData.length:', rawData.length, 'loading:', loading);
+
+  if (!hasData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
         {/* Header */}
@@ -127,7 +132,7 @@ const Index = () => {
               <div>
                 <h1 className="text-xl font-bold">Dashboard Financeiro</h1>
                 <p className="text-sm text-muted-foreground">
-                  {data.length} registros carregados
+                  {rawData.length} registros carregados
                 </p>
               </div>
             </div>

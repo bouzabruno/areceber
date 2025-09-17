@@ -9,14 +9,22 @@ export const useFinancialData = () => {
   const [filters, setFilters] = useState<DashboardFilters>({});
 
   const processExcelFile = useCallback(async (file: File) => {
+    console.log('🔄 Iniciando processamento do arquivo:', file.name, file.type, file.size);
     setLoading(true);
     try {
       const buffer = await file.arrayBuffer();
+      console.log('📄 Buffer criado, tamanho:', buffer.byteLength);
+      
       const workbook = XLSX.read(buffer, { type: 'array' });
+      console.log('📊 Workbook criado, sheets:', workbook.SheetNames);
+      
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
+      console.log('📋 Worksheet selecionada:', sheetName);
       
       const jsonData = XLSX.utils.sheet_to_json<FinancialRecord>(worksheet);
+      console.log('🔢 Dados convertidos para JSON, registros:', jsonData.length);
+      console.log('📝 Primeira linha de dados:', jsonData[0]);
       
       // Validar e processar os dados
       const processedData = jsonData.map((row, index) => {
@@ -41,13 +49,14 @@ export const useFinancialData = () => {
         }
       }).filter(Boolean) as FinancialRecord[];
 
+      console.log('✅ Dados processados com sucesso:', processedData.length, 'registros');
       setData(processedData);
       toast({
         title: "Sucesso!",
         description: `${processedData.length} registros carregados com sucesso.`,
       });
     } catch (error) {
-      console.error('Erro ao processar arquivo:', error);
+      console.error('❌ Erro ao processar arquivo:', error);
       toast({
         title: "Erro ao processar arquivo",
         description: "Verifique se o arquivo está no formato correto.",

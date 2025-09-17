@@ -74,7 +74,7 @@ export const DashboardFilters = ({
               </SelectTrigger>
               <SelectContent>
                 {uniqueValues.periodos.map((periodo) => (
-                  <SelectItem key={periodo} value={periodo.toString()}>
+                  <SelectItem key={`periodo-${periodo}`} value={periodo.toString()}>
                     {periodo}
                   </SelectItem>
                 ))}
@@ -93,7 +93,7 @@ export const DashboardFilters = ({
               </SelectTrigger>
               <SelectContent>
                 {uniqueValues.meses.map((mes) => (
-                  <SelectItem key={mes} value={mes}>
+                  <SelectItem key={`mes-${mes}`} value={mes}>
                     {mes}
                   </SelectItem>
                 ))}
@@ -112,7 +112,7 @@ export const DashboardFilters = ({
               </SelectTrigger>
               <SelectContent>
                 {uniqueValues.filiais.map((filial) => (
-                  <SelectItem key={filial} value={filial.toString()}>
+                  <SelectItem key={`filial-${filial}`} value={filial.toString()}>
                     Filial {filial}
                   </SelectItem>
                 ))}
@@ -131,7 +131,7 @@ export const DashboardFilters = ({
               </SelectTrigger>
               <SelectContent>
                 {uniqueValues.statusFinanceiro.map((status) => (
-                  <SelectItem key={status} value={status}>
+                  <SelectItem key={`status-${status}`} value={status}>
                     {status}
                   </SelectItem>
                 ))}
@@ -150,7 +150,7 @@ export const DashboardFilters = ({
               </SelectTrigger>
               <SelectContent>
                 {uniqueValues.formasPagamento.map((forma) => (
-                  <SelectItem key={forma} value={forma}>
+                  <SelectItem key={`forma-${forma}`} value={forma}>
                     {forma}
                   </SelectItem>
                 ))}
@@ -169,7 +169,7 @@ export const DashboardFilters = ({
               </SelectTrigger>
               <SelectContent>
                 {uniqueValues.situacoesContrato.map((situacao) => (
-                  <SelectItem key={situacao} value={situacao}>
+                  <SelectItem key={`situacao-${situacao}`} value={situacao}>
                     {situacao}
                   </SelectItem>
                 ))}

@@ -92,7 +92,7 @@ export const DashboardFilters = ({
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
-                {uniqueValues.meses.map((mes) => (
+                {uniqueValues.meses.filter(mes => mes && mes.trim() !== '').map((mes) => (
                   <SelectItem key={`mes-${mes}`} value={mes}>
                     {mes}
                   </SelectItem>
@@ -130,7 +130,7 @@ export const DashboardFilters = ({
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
-                {uniqueValues.statusFinanceiro.map((status) => (
+                {uniqueValues.statusFinanceiro.filter(status => status && status.trim() !== '').map((status) => (
                   <SelectItem key={`status-${status}`} value={status}>
                     {status}
                   </SelectItem>
@@ -149,7 +149,7 @@ export const DashboardFilters = ({
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
-                {uniqueValues.formasPagamento.map((forma) => (
+                {uniqueValues.formasPagamento.filter(forma => forma && forma.trim() !== '').map((forma) => (
                   <SelectItem key={`forma-${forma}`} value={forma}>
                     {forma}
                   </SelectItem>
@@ -168,7 +168,7 @@ export const DashboardFilters = ({
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
-                {uniqueValues.situacoesContrato.map((situacao) => (
+                {uniqueValues.situacoesContrato.filter(situacao => situacao && situacao.trim() !== '').map((situacao) => (
                   <SelectItem key={`situacao-${situacao}`} value={situacao}>
                     {situacao}
                   </SelectItem>

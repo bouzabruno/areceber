@@ -1,11 +1,13 @@
 import { FileUpload } from '@/components/FileUpload';
 import { DashboardFilters } from '@/components/DashboardFilters';
 import { FinancialSummaryCards } from '@/components/FinancialSummaryCards';
+import { FinancialInsights } from '@/components/FinancialInsights';
 import { FinancialCharts } from '@/components/FinancialCharts';
 import { DataTable } from '@/components/DataTable';
 import { useFinancialData } from '@/hooks/useFinancialData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, FileSpreadsheet, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BarChart3, FileSpreadsheet, TrendingUp, RefreshCw } from 'lucide-react';
 
 const Index = () => {
   const {
@@ -15,6 +17,7 @@ const Index = () => {
     filters,
     setFilters,
     processExcelFile,
+    resetData,
     summary,
     chartData,
     statusData,
@@ -144,7 +147,18 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <FileUpload onFileSelect={handleFileUpload} loading={loading} />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetData}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Nova Planilha
+              </Button>
+              <FileUpload onFileSelect={handleFileUpload} loading={loading} />
+            </div>
           </div>
         </div>
       </header>
@@ -160,6 +174,9 @@ const Index = () => {
 
         {/* Resumo Financeiro */}
         <FinancialSummaryCards summary={summary} />
+
+        {/* Insights Financeiros */}
+        <FinancialInsights summary={summary} />
 
         {/* Gráficos */}
         <FinancialCharts 

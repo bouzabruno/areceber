@@ -192,6 +192,13 @@ export const useFinancialData = () => {
     situacoesContrato: [...new Set(data.map(r => r.SituacaoContrato))],
   }), [data]);
 
+  // Função para resetar os dados e permitir nova importação
+  const resetData = useCallback(() => {
+    setData([]);
+    setFilters({});
+    console.log('🔄 Dados resetados, pronto para nova importação');
+  }, []);
+
   return {
     data: filteredData,
     rawData: data,
@@ -199,6 +206,7 @@ export const useFinancialData = () => {
     filters,
     setFilters,
     processExcelFile,
+    resetData,
     summary,
     chartData,
     statusData,

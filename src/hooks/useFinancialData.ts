@@ -156,17 +156,45 @@ export const useFinancialData = () => {
       return acc;
     }, {} as Record<string, any>);
 
-    return Object.values(monthlyData);
+    // Ordenar cronologicamente os meses
+    const monthOrder = [
+      '01-JANEIRO', '02-FEVEREIRO', '03-MARÇO', '04-ABRIL', '05-MAIO', '06-JUNHO',
+      '07-JULHO', '08-AGOSTO', '09-SETEMBRO', '10-OUTUBRO', '11-NOVEMBRO', '12-DEZEMBRO'
+    ];
+
+    return Object.values(monthlyData).sort((a: any, b: any) => {
+      const indexA = monthOrder.indexOf(a.mes);
+      const indexB = monthOrder.indexOf(b.mes);
+      return indexA - indexB;
+    });
   }, [filteredData]);
 
-  const statusData = useMemo(() => {
-    const statusCount = filteredData.reduce((acc, record) => {
-      const status = record.StatusFinanceiro;
-      acc[status] = (acc[status] || 0) + 1;
+  const paymentMethodData = useMemo(() => {
+    const paymentCount = filteredData.reduce((acc, record) => {
+      const method = record.FormaPagamento;
+      acc[method] = (acc[method] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(statusCount).map(([name, value]) => ({ name, value }));
+    return Object.entries(paymentCount).map(([name, value]) => ({ name, value }));
+  }, [filteredData]);
+
+  const branchData = useMemo(() => {
+    const branchValues = filteredData.reduce((acc, record) => {
+      const branch = `Filial ${record.CodFilial}`;
+      if (!acc[branch]) {
+        acc[branch] = {
+          filial: branch,
+          valorOriginal: 0,
+          valorLiquido: 0,
+        };
+      }
+      acc[branch].valorOriginal += record.ValorOriginal;
+      acc[branch].valorLiquido += record.ValorLiquido;
+      return acc;
+    }, {} as Record<string, any>);
+
+    return Object.values(branchValues);
   }, [filteredData]);
 
   const uniqueValues = useMemo(() => ({
@@ -185,7 +213,7 @@ export const useFinancialData = () => {
     console.log('🔄 Dados resetados, pronto para nova importação');
   }, []);
 
-  return {
+    return {
     data: filteredData,
     rawData: data,
     loading,
@@ -195,7 +223,8 @@ export const useFinancialData = () => {
     resetData,
     summary,
     chartData,
-    statusData,
+    paymentMethodData,
+    branchData,
     uniqueValues,
   };
 };

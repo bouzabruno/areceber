@@ -16,7 +16,8 @@ import {
 
 interface FinancialChartsProps {
   monthlyData: any[];
-  statusData: { name: string; value: number }[];
+  paymentMethodData: { name: string; value: number }[];
+  branchData: any[];
 }
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--success))', 'hsl(var(--warning))', 'hsl(var(--destructive))'];
@@ -29,7 +30,7 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const FinancialCharts = ({ monthlyData, statusData }: FinancialChartsProps) => {
+export const FinancialCharts = ({ monthlyData, paymentMethodData, branchData }: FinancialChartsProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Gráfico de Barras - Valores por Mês */}
@@ -63,16 +64,16 @@ export const FinancialCharts = ({ monthlyData, statusData }: FinancialChartsProp
         </CardContent>
       </Card>
 
-      {/* Gráfico de Pizza - Status Financeiro */}
+      {/* Gráfico de Pizza - Formas de Pagamento */}
       <Card>
         <CardHeader>
-          <CardTitle>Distribuição por Status Financeiro</CardTitle>
+          <CardTitle>Distribuição por Forma de Pagamento</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={statusData}
+                data={paymentMethodData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -81,7 +82,7 @@ export const FinancialCharts = ({ monthlyData, statusData }: FinancialChartsProp
                 fill="#8884d8"
                 dataKey="value"
               >
-                {statusData.map((entry, index) => (
+                {paymentMethodData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -91,19 +92,18 @@ export const FinancialCharts = ({ monthlyData, statusData }: FinancialChartsProp
         </CardContent>
       </Card>
 
-      {/* Gráfico de Linha - Juros e Multas por Mês */}
+      {/* Gráfico de Barras - Comparativo por Filiais */}
       <Card>
         <CardHeader>
-          <CardTitle>Juros e Multas por Mês</CardTitle>
+          <CardTitle>Comparativo por Filiais</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthlyData}>
+            <BarChart data={branchData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
-                dataKey="mes" 
+                dataKey="filial" 
                 fontSize={12}
-                tickFormatter={(value) => value.split('-')[1] || value}
               />
               <YAxis 
                 fontSize={12}
@@ -111,31 +111,19 @@ export const FinancialCharts = ({ monthlyData, statusData }: FinancialChartsProp
               />
               <Tooltip 
                 formatter={(value: number) => formatCurrency(value)}
-                labelFormatter={(label) => `Mês: ${label}`}
+                labelFormatter={(label) => label}
               />
-              <Line 
-                type="monotone" 
-                dataKey="valorJuros" 
-                stroke="hsl(var(--warning))" 
-                strokeWidth={2}
-                name="Juros"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="valorMultas" 
-                stroke="hsl(var(--destructive))" 
-                strokeWidth={2}
-                name="Multas"
-              />
-            </LineChart>
+              <Bar dataKey="valorOriginal" fill="hsl(var(--primary))" name="Valor Original" />
+              <Bar dataKey="valorLiquido" fill="hsl(var(--success))" name="Valor Líquido" />
+            </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Gráfico de Área - Comparativo de Valores */}
+      {/* Gráfico de Barras - Comparativo de Valores por Mês */}
       <Card>
         <CardHeader>
-          <CardTitle>Comparativo de Valores</CardTitle>
+          <CardTitle>Comparativo de Valores por Mês</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -154,9 +142,8 @@ export const FinancialCharts = ({ monthlyData, statusData }: FinancialChartsProp
                 formatter={(value: number) => formatCurrency(value)}
                 labelFormatter={(label) => `Mês: ${label}`}
               />
-              <Bar dataKey="valorOriginal" stackId="a" fill="hsl(var(--info))" name="Original" />
-              <Bar dataKey="valorJuros" stackId="a" fill="hsl(var(--warning))" name="Juros" />
-              <Bar dataKey="valorMultas" stackId="a" fill="hsl(var(--destructive))" name="Multas" />
+              <Bar dataKey="valorOriginal" fill="hsl(var(--primary))" name="Valor Original" />
+              <Bar dataKey="valorLiquido" fill="hsl(var(--success))" name="Valor Líquido" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

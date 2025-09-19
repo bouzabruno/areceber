@@ -32,7 +32,6 @@ export const FinancialInsights = ({ summary }: FinancialInsightsProps) => {
   // Análise de inadimplência
   const ticketMedio = summary.totalRecords > 0 ? summary.valorTotalOriginal / summary.totalRecords : 0;
   const percentualBolsas = summary.valorTotalOriginal > 0 ? (summary.valorTotalBolsas / summary.valorTotalOriginal) * 100 : 0;
-  const efetividadeCobranca = summary.valorTotalOriginal > 0 ? (summary.valorTotalLiquido / summary.valorTotalOriginal) * 100 : 0;
   
   // Análise por forma de pagamento
   const formasPagamento = filteredData.reduce((acc, record) => {
@@ -44,20 +43,11 @@ export const FinancialInsights = ({ summary }: FinancialInsightsProps) => {
     return acc;
   }, {} as Record<string, { count: number; valor: number }>);
 
-  const formasMaisUtilizada = Object.entries(formasPagamento)
-    .sort(([,a], [,b]) => b.count - a.count)[0];
-  
-  const formaMaiorValor = Object.entries(formasPagamento)
-    .sort(([,a], [,b]) => b.valor - a.valor)[0];
-
-  // Status da inadimplência
-  const statusCount = filteredData.reduce((acc, record) => {
-    acc[record.StatusFinanceiro] = (acc[record.StatusFinanceiro] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const statusPrincipal = Object.entries(statusCount)
-    .sort(([,a], [,b]) => b - a)[0];
+  // Taxa de inadimplência por forma de pagamento
+  const taxaInadimplenciaPorForma = Object.entries(formasPagamento).map(([forma, dados]) => {
+    const percentual = summary.totalRecords > 0 ? (dados.count / summary.totalRecords) * 100 : 0;
+    return { forma, percentual, count: dados.count };
+  }).sort((a, b) => b.percentual - a.percentual)[0];
 
   const insights = [
     {
@@ -69,44 +59,20 @@ export const FinancialInsights = ({ summary }: FinancialInsightsProps) => {
       bgColor: 'bg-primary/10',
     },
     {
-      title: 'Taxa de Efetividade',
-      value: formatPercentage(efetividadeCobranca),
-      description: efetividadeCobranca > 70 ? 'Excelente recuperação' : efetividadeCobranca > 50 ? 'Boa recuperação' : 'Necessita atenção',
-      icon: Target,
-      color: efetividadeCobranca > 70 ? 'text-success' : efetividadeCobranca > 50 ? 'text-warning' : 'text-destructive',
-      bgColor: efetividadeCobranca > 70 ? 'bg-success/10' : efetividadeCobranca > 50 ? 'bg-warning/10' : 'bg-destructive/10',
-    },
-    {
       title: 'Impacto das Bolsas',
       value: formatPercentage(percentualBolsas),
       description: `${formatCurrency(summary.valorTotalBolsas)} em bolsas aplicadas`,
       icon: Users,
-      color: 'text-info',
-      bgColor: 'bg-info/10',
-    },
-    {
-      title: 'Forma de Pagamento Principal',
-      value: formasMaisUtilizada?.[0] || 'N/A',
-      description: `${formasMaisUtilizada?.[1]?.count || 0} registros`,
-      icon: CreditCard,
-      color: 'text-accent-foreground',
-      bgColor: 'bg-accent/10',
-    },
-    {
-      title: 'Maior Volume Financeiro',
-      value: formaMaiorValor?.[0] || 'N/A',
-      description: formatCurrency(formaMaiorValor?.[1]?.valor || 0),
-      icon: TrendingUp,
       color: 'text-success',
       bgColor: 'bg-success/10',
     },
     {
-      title: 'Status Predominante',
-      value: statusPrincipal?.[0] || 'N/A',
-      description: `${statusPrincipal?.[1] || 0} registros`,
-      icon: AlertTriangle,
-      color: statusPrincipal?.[0] === 'Em Aberto' ? 'text-destructive' : 'text-warning',
-      bgColor: statusPrincipal?.[0] === 'Em Aberto' ? 'bg-destructive/10' : 'bg-warning/10',
+      title: 'Inadimplência por Forma de Pagamento',
+      value: taxaInadimplenciaPorForma?.forma || 'N/A',
+      description: `${formatPercentage(taxaInadimplenciaPorForma?.percentual || 0)} dos registros`,
+      icon: CreditCard,
+      color: 'text-warning',
+      bgColor: 'bg-warning/10',
     },
   ];
 
@@ -152,25 +118,24 @@ export const FinancialInsights = ({ summary }: FinancialInsightsProps) => {
           </h3>
           <div className="bg-muted/50 p-4 rounded-lg space-y-2">
             <p className="text-sm">
-              <strong>Status da Cobrança:</strong>{' '}
-              {efetividadeCobranca > 70 
-                ? 'A taxa de efetividade está excelente, demonstrando boa gestão de cobrança.'
-                : efetividadeCobranca > 50 
-                ? 'A taxa de efetividade está razoável, mas há espaço para melhorias.'
-                : 'A taxa de efetividade está baixa, necessitando atenção urgente nos processos de cobrança.'
+              <strong>Inadimplência por Forma de Pagamento:</strong>{' '}
+              A forma de pagamento "{taxaInadimplenciaPorForma?.forma}" representa {formatPercentage(taxaInadimplenciaPorForma?.percentual || 0)} 
+              dos registros de inadimplência ({taxaInadimplenciaPorForma?.count} registros). 
+              {taxaInadimplenciaPorForma?.forma === 'Cobrança Eletrônica' ? 
+                'Cobrança Eletrônica refere-se a pagamentos via boleto bancário.' : ''}
+            </p>
+            <p className="text-sm">
+              <strong>Análise de Bolsas:</strong>{' '}
+              {percentualBolsas > 15 
+                ? 'Alto percentual de bolsas pode indicar estratégia de retenção de alunos ou necessidade de ajuste de preços.'
+                : percentualBolsas > 5 
+                ? 'Percentual moderado de bolsas, dentro de parâmetros normais para instituições de ensino.'
+                : 'Baixo percentual de bolsas aplicadas.'
               }
             </p>
             <p className="text-sm">
-              <strong>Gestão de Inadimplência:</strong>{' '}
-              {statusPrincipal?.[0] === 'Em Aberto' 
-                ? 'Alto volume de registros em aberto indica necessidade de estratégias mais agressivas de cobrança.'
-                : 'A distribuição de status indica gestão ativa dos processos de cobrança.'
-              }
-            </p>
-            <p className="text-sm">
-              <strong>Análise de Pagamento:</strong>{' '}
-              A forma de pagamento "{formasMaisUtilizada?.[0]}" é predominante com {formasMaisUtilizada?.[1]?.count} registros, 
-              enquanto "{formaMaiorValor?.[0]}" concentra o maior volume financeiro com {formatCurrency(formaMaiorValor?.[1]?.valor || 0)}.
+              <strong>Ticket Médio:</strong>{' '}
+              O valor médio de {formatCurrency(ticketMedio)} por registro indica o perfil financeiro da inadimplência da instituição.
             </p>
           </div>
         </div>

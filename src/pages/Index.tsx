@@ -20,7 +20,8 @@ const Index = () => {
     resetData,
     summary,
     chartData,
-    statusData,
+    paymentMethodData,
+    branchData,
     uniqueValues,
   } = useFinancialData();
 
@@ -176,10 +177,11 @@ const Index = () => {
         <FinancialInsights summary={summary} />
 
         {/* Gráficos */}
-        <FinancialCharts 
-          monthlyData={chartData} 
-          statusData={statusData} 
-        />
+            <FinancialCharts 
+              monthlyData={chartData} 
+              paymentMethodData={paymentMethodData}
+              branchData={branchData}
+            />
 
         {/* Tabela de Dados */}
         <DataTable data={data} />

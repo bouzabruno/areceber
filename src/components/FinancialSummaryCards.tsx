@@ -35,16 +35,16 @@ export const FinancialSummaryCards = ({ summary }: FinancialSummaryCardsProps) =
       color: 'text-destructive',
     },
     {
-      title: 'Valor Líquido',
-      value: formatCurrency(summary.valorTotalLiquido),
-      icon: Target,
-      color: 'text-info',
-    },
-    {
       title: 'Bolsas Aplicadas',
       value: formatCurrency(summary.valorTotalBolsas),
       icon: CreditCard,
       color: 'text-success',
+    },
+    {
+      title: 'Valor Líquido',
+      value: formatCurrency(summary.valorTotalLiquido),
+      icon: Target,
+      color: 'text-info',
     },
   ];
 

@@ -147,18 +147,15 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetData}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Nova Planilha
-              </Button>
-              <FileUpload onFileSelect={handleFileUpload} loading={loading} />
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetData}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Nova Planilha
+            </Button>
           </div>
         </div>
       </header>

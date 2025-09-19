@@ -14,10 +14,6 @@ export interface FinancialRecord {
   StatusFinanceiro: string;
   ValorOriginal: number;
   Bolsa: number;
-  ValorJuros: number;
-  ValorMulta: number;
-  ValorDesconto: number;
-  ValorRenegociado: number;
   ValorLiquido: number;
 }
 
@@ -34,8 +30,5 @@ export interface FinancialSummary {
   totalRecords: number;
   valorTotalOriginal: number;
   valorTotalLiquido: number;
-  valorTotalJuros: number;
-  valorTotalMultas: number;
-  valorTotalDescontos: number;
   valorTotalBolsas: number;
 }

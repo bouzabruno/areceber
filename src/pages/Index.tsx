@@ -55,8 +55,8 @@ const Index = () => {
                 <BarChart3 className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Dashboard Financeiro</h1>
-                <p className="text-muted-foreground">Análise e visualização de dados educacionais</p>
+                <h1 className="text-2xl font-bold">Análise de Inadimplência</h1>
+                <p className="text-muted-foreground">Dashboard de controle de inadimplência escolar</p>
               </div>
             </div>
           </div>
@@ -71,10 +71,10 @@ const Index = () => {
                   <FileSpreadsheet className="h-16 w-16 text-primary" />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold">Bem-vindo ao Dashboard Financeiro</h2>
+              <h2 className="text-3xl font-bold">Bem-vindo à Análise de Inadimplência</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Importe sua planilha Excel e transforme seus dados financeiros em insights visuais 
-                com gráficos interativos e filtros dinâmicos.
+                 Importe sua planilha Excel de inadimplência e obtenha insights detalhados 
+                com análises por forma de pagamento e indicadores de cobrança.
               </p>
             </div>
 
@@ -91,7 +91,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Gráficos de barras, pizza e linha para análise visual dos seus dados financeiros.
+                    Gráficos de barras, pizza e linha para análise visual da inadimplência.
                   </p>
                 </CardContent>
               </Card>
@@ -105,7 +105,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Resumos automáticos de valores totais, juros, multas e descontos.
+                    Resumos automáticos de valores em aberto e indicadores de inadimplência.
                   </p>
                 </CardContent>
               </Card>
@@ -141,7 +141,7 @@ const Index = () => {
                 <BarChart3 className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">Dashboard Financeiro</h1>
+                <h1 className="text-xl font-bold">Análise de Inadimplência</h1>
                 <p className="text-sm text-muted-foreground">
                   {rawData.length} registros carregados
                 </p>

@@ -80,10 +80,6 @@ export const useFinancialData = () => {
             StatusFinanceiro: String(row.StatusFinanceiro || ''),
             ValorOriginal: Number(row.ValorOriginal) || 0,
             Bolsa: Number(row.Bolsa) || 0,
-            ValorJuros: Number(row.ValorJuros) || 0,
-            ValorMulta: Number(row.ValorMulta) || 0,
-            ValorDesconto: Number(row.ValorDesconto) || 0,
-            ValorRenegociado: Number(row.ValorRenegociado) || 0,
             ValorLiquido: Number(row.ValorLiquido) || 0,
           } as FinancialRecord;
         } catch (error) {
@@ -134,18 +130,12 @@ export const useFinancialData = () => {
         totalRecords: acc.totalRecords + 1,
         valorTotalOriginal: acc.valorTotalOriginal + record.ValorOriginal,
         valorTotalLiquido: acc.valorTotalLiquido + record.ValorLiquido,
-        valorTotalJuros: acc.valorTotalJuros + record.ValorJuros,
-        valorTotalMultas: acc.valorTotalMultas + record.ValorMulta,
-        valorTotalDescontos: acc.valorTotalDescontos + record.ValorDesconto,
         valorTotalBolsas: acc.valorTotalBolsas + record.Bolsa,
       }),
       {
         totalRecords: 0,
         valorTotalOriginal: 0,
         valorTotalLiquido: 0,
-        valorTotalJuros: 0,
-        valorTotalMultas: 0,
-        valorTotalDescontos: 0,
         valorTotalBolsas: 0,
       }
     );
@@ -159,14 +149,10 @@ export const useFinancialData = () => {
           mes: month,
           valorOriginal: 0,
           valorLiquido: 0,
-          valorJuros: 0,
-          valorMultas: 0,
         };
       }
       acc[month].valorOriginal += record.ValorOriginal;
       acc[month].valorLiquido += record.ValorLiquido;
-      acc[month].valorJuros += record.ValorJuros;
-      acc[month].valorMultas += record.ValorMulta;
       return acc;
     }, {} as Record<string, any>);
 

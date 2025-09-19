@@ -67,7 +67,7 @@ export const DataTable = ({ data }: DataTableProps) => {
       'Cod Filial', 'Período Letivo', 'Mês', 'Cod Turma', 'Data Vencimento',
       'Data Baixa', 'Ref Lançamento', 'Forma Pagamento', 'Cliente/Fornecedor',
       'RA', 'Situação Contrato', 'Status Financeiro', 'Valor Original',
-      'Bolsa', 'Valor Juros', 'Valor Multa', 'Valor Desconto', 'Valor Renegociado', 'Valor Líquido'
+      'Bolsa', 'Valor Líquido'
     ];
 
     const csvContent = [
@@ -87,10 +87,6 @@ export const DataTable = ({ data }: DataTableProps) => {
         `"${record.StatusFinanceiro}"`,
         record.ValorOriginal,
         record.Bolsa,
-        record.ValorJuros,
-        record.ValorMulta,
-        record.ValorDesconto,
-        record.ValorRenegociado,
         record.ValorLiquido
       ].join(','))
     ].join('\n');

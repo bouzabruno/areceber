@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   TrendingUp, 
-  TrendingDown, 
-  AlertCircle, 
-  CheckCircle, 
-  Calculator,
+  AlertTriangle, 
+  DollarSign, 
+  Users,
+  CreditCard,
+  Calendar,
   Target
 } from 'lucide-react';
 import { FinancialSummary } from '@/types/financial';
+import { useFinancialData } from '@/hooks/useFinancialData';
 
 interface FinancialInsightsProps {
   summary: FinancialSummary;
@@ -25,149 +27,154 @@ const formatPercentage = (value: number) => {
 };
 
 export const FinancialInsights = ({ summary }: FinancialInsightsProps) => {
-  // Cálculos de insights
-  const eficienciaCobranca = summary.valorTotalOriginal > 0 
-    ? (summary.valorTotalLiquido / summary.valorTotalOriginal) * 100 
-    : 0;
-    
-  const impactoJuros = summary.valorTotalOriginal > 0 
-    ? (summary.valorTotalJuros / summary.valorTotalOriginal) * 100 
-    : 0;
-    
-  const impactoMultas = summary.valorTotalOriginal > 0 
-    ? (summary.valorTotalMultas / summary.valorTotalOriginal) * 100 
-    : 0;
-    
-  const impactoDescontos = summary.valorTotalOriginal > 0 
-    ? (summary.valorTotalDescontos / summary.valorTotalOriginal) * 100 
-    : 0;
-    
-  const impactoBolsas = summary.valorTotalOriginal > 0 
-    ? (summary.valorTotalBolsas / summary.valorTotalOriginal) * 100 
-    : 0;
+  const { data: filteredData } = useFinancialData();
 
-  const valorMedioRegistro = summary.totalRecords > 0 
-    ? summary.valorTotalOriginal / summary.totalRecords 
-    : 0;
+  // Análise de inadimplência
+  const ticketMedio = summary.totalRecords > 0 ? summary.valorTotalOriginal / summary.totalRecords : 0;
+  const percentualBolsas = summary.valorTotalOriginal > 0 ? (summary.valorTotalBolsas / summary.valorTotalOriginal) * 100 : 0;
+  const efetividadeCobranca = summary.valorTotalOriginal > 0 ? (summary.valorTotalLiquido / summary.valorTotalOriginal) * 100 : 0;
+  
+  // Análise por forma de pagamento
+  const formasPagamento = filteredData.reduce((acc, record) => {
+    if (!acc[record.FormaPagamento]) {
+      acc[record.FormaPagamento] = { count: 0, valor: 0 };
+    }
+    acc[record.FormaPagamento].count += 1;
+    acc[record.FormaPagamento].valor += record.ValorOriginal;
+    return acc;
+  }, {} as Record<string, { count: number; valor: number }>);
+
+  const formasMaisUtilizada = Object.entries(formasPagamento)
+    .sort(([,a], [,b]) => b.count - a.count)[0];
+  
+  const formaMaiorValor = Object.entries(formasPagamento)
+    .sort(([,a], [,b]) => b.valor - a.valor)[0];
+
+  // Status da inadimplência
+  const statusCount = filteredData.reduce((acc, record) => {
+    acc[record.StatusFinanceiro] = (acc[record.StatusFinanceiro] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const statusPrincipal = Object.entries(statusCount)
+    .sort(([,a], [,b]) => b - a)[0];
 
   const insights = [
     {
-      title: 'Eficiência de Cobrança',
-      value: formatPercentage(eficienciaCobranca),
-      description: 'Percentual do valor original que foi efetivamente recebido',
-      icon: eficienciaCobranca >= 80 ? CheckCircle : AlertCircle,
-      color: eficienciaCobranca >= 80 ? 'text-success' : 'text-warning',
-      bgColor: eficienciaCobranca >= 80 ? 'bg-success/10' : 'bg-warning/10',
+      title: 'Ticket Médio',
+      value: formatCurrency(ticketMedio),
+      description: 'Valor médio por registro de inadimplência',
+      icon: DollarSign,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
     },
     {
-      title: 'Impacto de Juros',
-      value: formatPercentage(impactoJuros),
-      description: 'Percentual de juros sobre o valor original',
-      icon: TrendingUp,
-      color: impactoJuros > 5 ? 'text-destructive' : 'text-success',
-      bgColor: impactoJuros > 5 ? 'bg-destructive/10' : 'bg-success/10',
-    },
-    {
-      title: 'Impacto de Multas',
-      value: formatPercentage(impactoMultas),
-      description: 'Percentual de multas sobre o valor original',
-      icon: TrendingDown,
-      color: impactoMultas > 3 ? 'text-destructive' : 'text-success',
-      bgColor: impactoMultas > 3 ? 'bg-destructive/10' : 'bg-success/10',
-    },
-    {
-      title: 'Benefício Descontos',
-      value: formatPercentage(impactoDescontos),
-      description: 'Percentual de descontos concedidos',
+      title: 'Taxa de Efetividade',
+      value: formatPercentage(efetividadeCobranca),
+      description: efetividadeCobranca > 70 ? 'Excelente recuperação' : efetividadeCobranca > 50 ? 'Boa recuperação' : 'Necessita atenção',
       icon: Target,
+      color: efetividadeCobranca > 70 ? 'text-success' : efetividadeCobranca > 50 ? 'text-warning' : 'text-destructive',
+      bgColor: efetividadeCobranca > 70 ? 'bg-success/10' : efetividadeCobranca > 50 ? 'bg-warning/10' : 'bg-destructive/10',
+    },
+    {
+      title: 'Impacto das Bolsas',
+      value: formatPercentage(percentualBolsas),
+      description: `${formatCurrency(summary.valorTotalBolsas)} em bolsas aplicadas`,
+      icon: Users,
       color: 'text-info',
       bgColor: 'bg-info/10',
     },
     {
-      title: 'Impacto Bolsas',
-      value: formatPercentage(impactoBolsas),
-      description: 'Percentual de bolsas de estudo concedidas',
-      icon: CheckCircle,
+      title: 'Forma de Pagamento Principal',
+      value: formasMaisUtilizada?.[0] || 'N/A',
+      description: `${formasMaisUtilizada?.[1]?.count || 0} registros`,
+      icon: CreditCard,
       color: 'text-accent-foreground',
       bgColor: 'bg-accent/10',
     },
     {
-      title: 'Valor Médio por Registro',
-      value: formatCurrency(valorMedioRegistro),
-      description: 'Valor médio original por transação',
-      icon: Calculator,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
+      title: 'Maior Volume Financeiro',
+      value: formaMaiorValor?.[0] || 'N/A',
+      description: formatCurrency(formaMaiorValor?.[1]?.valor || 0),
+      icon: TrendingUp,
+      color: 'text-success',
+      bgColor: 'bg-success/10',
+    },
+    {
+      title: 'Status Predominante',
+      value: statusPrincipal?.[0] || 'N/A',
+      description: `${statusPrincipal?.[1] || 0} registros`,
+      icon: AlertTriangle,
+      color: statusPrincipal?.[0] === 'Em Aberto' ? 'text-destructive' : 'text-warning',
+      bgColor: statusPrincipal?.[0] === 'Em Aberto' ? 'bg-destructive/10' : 'bg-warning/10',
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary/10 rounded-lg">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-primary" />
+          Insights de Inadimplência
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Análise detalhada dos indicadores de inadimplência e formas de pagamento
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {insights.map((insight) => (
+            <Card key={insight.title} className="relative overflow-hidden">
+              <div className={`absolute inset-0 ${insight.bgColor}`} />
+              <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {insight.title}
+                </CardTitle>
+                <insight.icon className={`h-4 w-4 ${insight.color}`} />
+              </CardHeader>
+              <CardContent className="relative">
+                <div className={`text-2xl font-bold ${insight.color}`}>
+                  {insight.value}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {insight.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        <div>
-          <h2 className="text-xl font-bold">Insights Financeiros</h2>
-          <p className="text-sm text-muted-foreground">
-            Análise automática dos dados filtrados
-          </p>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {insights.map((insight) => (
-          <Card key={insight.title} className="relative overflow-hidden">
-            <div className={`absolute inset-0 ${insight.bgColor} opacity-50`} />
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {insight.title}
-              </CardTitle>
-              <insight.icon className={`h-4 w-4 ${insight.color}`} />
-            </CardHeader>
-            <CardContent className="relative space-y-1">
-              <div className={`text-2xl font-bold ${insight.color}`}>
-                {insight.value}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {insight.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      {/* Resumo Executivo */}
-      <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
-            Resumo Executivo
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <strong>Performance de Cobrança:</strong>
-              <p className="text-muted-foreground">
-                {eficienciaCobranca >= 80 
-                  ? "Excelente eficiência de cobrança, acima de 80%." 
-                  : eficienciaCobranca >= 60 
-                  ? "Boa eficiência de cobrança, mas há espaço para melhoria." 
-                  : "Eficiência de cobrança baixa, requer atenção urgente."}
-              </p>
-            </div>
-            <div>
-              <strong>Gestão de Inadimplência:</strong>
-              <p className="text-muted-foreground">
-                {impactoJuros + impactoMultas < 5 
-                  ? "Baixo impacto de juros e multas, boa gestão de inadimplência." 
-                  : "Alto impacto de juros e multas indica necessidade de melhor gestão de inadimplência."}
-              </p>
-            </div>
+
+        {/* Resumo Executivo */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-primary" />
+            Resumo Executivo de Inadimplência
+          </h3>
+          <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+            <p className="text-sm">
+              <strong>Status da Cobrança:</strong>{' '}
+              {efetividadeCobranca > 70 
+                ? 'A taxa de efetividade está excelente, demonstrando boa gestão de cobrança.'
+                : efetividadeCobranca > 50 
+                ? 'A taxa de efetividade está razoável, mas há espaço para melhorias.'
+                : 'A taxa de efetividade está baixa, necessitando atenção urgente nos processos de cobrança.'
+              }
+            </p>
+            <p className="text-sm">
+              <strong>Gestão de Inadimplência:</strong>{' '}
+              {statusPrincipal?.[0] === 'Em Aberto' 
+                ? 'Alto volume de registros em aberto indica necessidade de estratégias mais agressivas de cobrança.'
+                : 'A distribuição de status indica gestão ativa dos processos de cobrança.'
+              }
+            </p>
+            <p className="text-sm">
+              <strong>Análise de Pagamento:</strong>{' '}
+              A forma de pagamento "{formasMaisUtilizada?.[0]}" é predominante com {formasMaisUtilizada?.[1]?.count} registros, 
+              enquanto "{formaMaiorValor?.[0]}" concentra o maior volume financeiro com {formatCurrency(formaMaiorValor?.[1]?.valor || 0)}.
+            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
